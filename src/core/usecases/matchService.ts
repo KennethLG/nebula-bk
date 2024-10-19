@@ -9,7 +9,7 @@ export interface Match {
   players: Player[];
 }
 
-export class MatchmakingService {
+export class MatchService {
   private queue: Player[] = [];
   private matches: { [key: string]: Player[] } = {};
   
@@ -18,6 +18,7 @@ export class MatchmakingService {
   // Adds a player to the matchmaking queue
   joinQueue(player: Player): Match | null {
     this.queue.push(player);
+    console.log("adding player", player, this.queue)
     const result = this.checkForMatch();
     return result
   }

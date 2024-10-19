@@ -1,15 +1,17 @@
-import { Match, MatchmakingService } from '../../core/usecases/matchMaking';
+import { Match, MatchService } from '../../core/usecases/matchService';
 import { Player } from '../../core/entities/player';
+import Vector from '../../core/entities/vector';
 
 export class MatchController {
-  private matchmakingService: MatchmakingService;
+  private matchmakingService: MatchService;
 
-  constructor(matchmakingService: MatchmakingService) {
+  constructor(matchmakingService: MatchService) {
     this.matchmakingService = matchmakingService;
   }
 
-  handlePlayerJoin(playerId: string): Match | null {
-    const player = new Player(playerId);
+  handlePlayerJoin(playerId: number): Match | null {
+    const player = new Player(playerId, new Vector(), new Vector());
+    console.log('new player', player)
     const result = this.matchmakingService.joinQueue(player);
     return result
   }
