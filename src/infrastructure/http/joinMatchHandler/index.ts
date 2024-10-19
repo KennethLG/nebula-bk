@@ -2,18 +2,22 @@ import { Server, Socket } from "socket.io";
 import { MatchController } from "../../controllers/matchController";
 import { MatchService } from "../../../core/usecases/matchService";
 import { GenerateSeed } from "../../../core/usecases/generateSeed";
+import MatchesRepo from "../../../repositories/matchesRepo";
+import RedisRepo from "../../../repositories/redisRepo";
+import RedisClient from "../../redis";
+import PlayersQueueRepo from "../../../repositories/playersQueueRepo";
 
 interface JoinMatchData {
     id: number
 }
 
-export default class JoinMatchHandler {
+export class JoinMatchHandler {
     constructor(
         private readonly matchController: MatchController
     ) { }
 
-    handle(data: JoinMatchData, io: Server, socket: Socket) {
-        const result = this.matchController.handlePlayerJoin(data.id);
+    async handle(data: JoinMatchData, io: Server, socket: Socket) {
+        const result = await this.matchController.handlePlayerJoin(data.id);
         if (result) {
             io.to(socket.id).emit('matchFound', {
                 seed: result.seed,
@@ -26,7 +30,11 @@ export default class JoinMatchHandler {
 
 export const joinMatchHandlerFactory = () => {
     const generateSeed = new GenerateSeed();
-    const matchmakingService = new MatchService(generateSeed);
+    const redisClient = new RedisClient();
+    const redisRepo = new RedisRepo(redisClient);
+    const matchesRepo = new MatchesRepo(redisRepo);
+    const playersQueueRepo = new PlayersQueueRepo(redisRepo);
+    const matchmakingService = new MatchService(generateSeed, matchesRepo, playersQueueRepo);
     const matchController = new MatchController(matchmakingService);
     return new JoinMatchHandler(matchController);
 } 

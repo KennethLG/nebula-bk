@@ -9,7 +9,7 @@ export class MatchController {
     this.matchmakingService = matchmakingService;
   }
 
-  handlePlayerJoin(playerId: number): Match | null {
+  handlePlayerJoin(playerId: number): Promise<Match | null> {
     const player = new Player(playerId, new Vector(), new Vector());
     console.log('new player', player)
     const result = this.matchmakingService.joinQueue(player);

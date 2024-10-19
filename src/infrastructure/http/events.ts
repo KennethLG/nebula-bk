@@ -1,7 +1,7 @@
 import { Server, Socket } from "socket.io";
 import { Express } from "express";
 import { createServer } from 'http';
-import JoinMatchHandler, { joinMatchHandlerFactory } from "./joinMatchHandler";
+import { joinMatchHandlerFactory, JoinMatchHandler } from "./joinMatchHandler";
 
 
 export default class IoConnection {
@@ -28,7 +28,7 @@ export default class IoConnection {
         })
     }
 
-    private handle(socket: Socket) {
+    private handle = (socket: Socket) => {
         console.log(`Player connected: ${socket.id}`);
         socket.on('joinMatch', (data) => {
             this.joinMatchHandler.handle(data, this.io, socket);
