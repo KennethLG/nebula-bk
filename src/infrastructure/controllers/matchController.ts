@@ -9,10 +9,14 @@ export class MatchController {
     this.matchmakingService = matchmakingService;
   }
 
-  handlePlayerJoin(playerId: number): Promise<Match | null> {
+  async handlePlayerJoin(playerId: number): Promise<Match | null> {
     const player = new Player(playerId, new Vector(), new Vector());
     console.log('new player', player)
-    const result = this.matchmakingService.joinQueue(player);
+    const result = await this.matchmakingService.joinQueue(player);
     return result
+  }
+
+  async updatePlayer(matchId: string, player: Player): Promise<void> {
+    await this.matchmakingService.updatePlayer(matchId, player);
   }
 }

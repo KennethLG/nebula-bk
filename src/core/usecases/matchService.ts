@@ -19,10 +19,14 @@ export class MatchService {
   ) {}
 
   async joinQueue(player: Player): Promise<Match | null> {
-    this.playersQueueRepo.addPlayer(player);
+    await this.playersQueueRepo.addPlayer(player);
     console.log("adding player", player)
     const result = await this.checkForMatch();
     return result;
+  }
+
+  async updatePlayer(matchId: string, player: Player): Promise<void> {
+    await this.matchesRepo.updatePlayer(matchId, player);
   }
 
   private async checkForMatch(): Promise<Match | null> {

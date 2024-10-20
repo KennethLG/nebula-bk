@@ -16,15 +16,9 @@ export class JoinMatchHandler {
         private readonly matchController: MatchController
     ) { }
 
-    async handle(data: JoinMatchData, io: Server, socket: Socket) {
-        const result = await this.matchController.handlePlayerJoin(data.id);
-        if (result) {
-            io.to(socket.id).emit('matchFound', {
-                seed: result.seed,
-                id: result.id,
-                players: result.players
-            })
-        }
+    async handle(data: JoinMatchData) {
+        return await this.matchController.handlePlayerJoin(data.id);
+
     }
 }
 
