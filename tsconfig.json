@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "ES2020",                          // Specifies the target ECMAScript version (you can adjust based on your Node version)
+    "target": "ES2023",                          // Specifies the target ECMAScript version (you can adjust based on your Node version)
     "module": "commonjs",                        // Node.js uses CommonJS module resolution
     "strict": true,                              // Enables strict type checking options
     "esModuleInterop": true,                     // Enables interoperability between CommonJS and ES6 modules
@@ -10,7 +10,10 @@
     "resolveJsonModule": true,                   // Allows importing JSON modules
     "skipLibCheck": true,                        // Skip type checking of declaration files (.d.ts)
     "forceConsistentCasingInFileNames": true,    // Ensure imports use consistent casing
-    "sourceMap": true                            // Generates source maps for debugging
+    "sourceMap": true,                            // Generates source maps for debugging
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "strictPropertyInitialization": false
   },
   "include": [
     "src/**/*.ts"                                // Include all .ts files in the src folder
