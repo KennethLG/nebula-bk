@@ -1,14 +1,16 @@
-// src/core/usecases/MatchmakingService.ts
-
-import IMatchesRepo from '../../interfaces/IMatchesRepo';
-import IPlayersQueueRepo from '../../interfaces/IPlayersQueueRepo';
-import { Player } from '../entities/player';
-import { GenerateSeed } from './generateSeed';
+import { Player } from '../../domain/entities/player';
+import IMatchesRepo from '../../domain/interfaces/IMatchesRepo';
+import IPlayersQueueRepo from '../../domain/interfaces/IPlayersQueueRepo';
+import { GenerateSeed } from './seedService';
 
 export interface Match {
   id: string;
   seed: number;
   players: Player[];
+}
+
+class PlayerQueueDto extends Player {
+  socketId: string;
 }
 
 export class MatchService {
@@ -18,21 +20,22 @@ export class MatchService {
     private readonly playersQueueRepo: IPlayersQueueRepo
   ) {}
 
-  async joinQueue(player: Player): Promise<Match | null> {
+  async joinQueue(player: PlayerQueueDto): Promise<Match | null> {
+    console.log("adding player to queue", player)
     await this.playersQueueRepo.addPlayer(player);
-    console.log("adding player", player)
     const result = await this.checkForMatch();
+    console.log("check for match result", result);
     return result;
   }
 
   async updatePlayer(matchId: string, player: Player): Promise<void> {
-    await this.matchesRepo.updatePlayer(matchId, player);
+    return await this.matchesRepo.updatePlayer(matchId, player);
   }
 
   private async checkForMatch(): Promise<Match | null> {
     const playersCount = await this.playersQueueRepo.getPlayersCount();
     if (playersCount >= 2) {
-      const players = await this.playersQueueRepo.getPlayers();
+      const players = await this.playersQueueRepo.popPlayers(2);
 
       const seed = this.generateSeed.execute();
 

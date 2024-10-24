@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from 'cors';
-import router from './infrastructure/http/routes';
-import IoConnection from './infrastructure/http/events';
+import router from './presentation/http/routes';
+import IoConnection from './presentation/http/events';
 
 const app = express();
 

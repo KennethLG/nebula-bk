@@ -1,4 +1,4 @@
-import { Player } from "../../../core/entities/player";
+import { Player } from "../../../domain/entities/player";
 
 export class UpdatePlayerDto {
     matchId: string;

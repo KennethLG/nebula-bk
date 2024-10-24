@@ -1,5 +1,5 @@
-import RedisClient from "../infrastructure/redis";
-import { IRedisRepo } from "../interfaces/IRedisRepo";
+import { IRedisRepo } from "../../domain/interfaces/IRedisRepo";
+import RedisClient from "../redis";
 
 export default class RedisRepo implements IRedisRepo {
     client;
@@ -37,10 +37,14 @@ export default class RedisRepo implements IRedisRepo {
         }
     }
 
-    async pop(key: string) {
+    async pop(key: string, count?: number) {
         try {
-            const result = await this.client.lPop(key);
-            return result ? JSON.parse(result) : null;
+            const result = await this.client.sendCommand(['LPOP', key, count ? count.toString() : '1']);
+            console.log(result);
+            if (!result) {
+                return null;
+            }
+            return result;
         } catch (error) {
             console.error(`Error popping value from key ${key}:`, error);
             throw error;
@@ -66,4 +70,15 @@ export default class RedisRepo implements IRedisRepo {
             throw error;
         }
     }
+
+    async removeRange(key: string, start: number, end: number) {
+        try {
+            const result = await this.client.lTrim(key, start, end);
+            return result;
+        } catch (error) {
+            console.error(`Error removing range of key ${key} from ${start} to ${end}:`, error);
+            throw error;
+        }
+    }
+    
 }

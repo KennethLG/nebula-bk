@@ -1,4 +1,4 @@
-import { Player } from "../core/entities/player";
+import { Player } from "../entities/player";
 
 export default interface IMatchesRepo {
     createMatch: (players: Player[]) => Promise<{id: string}>;
