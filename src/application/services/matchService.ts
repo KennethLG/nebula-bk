@@ -47,9 +47,9 @@ export class MatchService {
       })
 
       const seed = this.generateSeed.execute();
-      const roomName = this.roomService.createRoomName(players);
-
+      
       const { id } = await this.matchesRepo.createMatch(players);
+      const roomName = this.roomService.createRoomName(id);
 
       return {
         players,
@@ -59,11 +59,5 @@ export class MatchService {
       }
     }
     return null;
-  }
-
-  createRoomName(players: Player[]) {
-    const prefix = "match-";
-    const playersId = players.map(player => player.id).join('-');
-    return `${prefix}${playersId}`;
   }
 }
