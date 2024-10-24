@@ -9,6 +9,11 @@ import { IRedisRepo } from "../../../domain/interfaces/IRedisRepo";
 import IMatchesRepo from "../../../domain/interfaces/IMatchesRepo";
 import IPlayersQueueRepo from "../../../domain/interfaces/IPlayersQueueRepo";
 import { UpdatePlayerUseCase } from "../../../application/usecases/updatePlayerUseCase";
+import { RoomService } from "../../../application/services/roomService";
+
+const roomServiceFactory = () => {
+    return new RoomService();
+}
 
 const generateSeedFactory = () => {
     return new GenerateSeed();
@@ -30,8 +35,8 @@ const playersQueueRepoFactory = (redisRepo: IRedisRepo) => {
     return new PlayersQueueRepo(redisRepo);
 }
 
-const matchServiceFactory = (generateSeed: GenerateSeed, matchesRepo: IMatchesRepo, playersQueueRepo: IPlayersQueueRepo) => {
-    return new MatchService(generateSeed, matchesRepo, playersQueueRepo);
+const matchServiceFactory = (generateSeed: GenerateSeed, matchesRepo: IMatchesRepo, playersQueueRepo: IPlayersQueueRepo, roomService: RoomService) => {
+    return new MatchService(generateSeed, matchesRepo, playersQueueRepo, roomService);
 }
 
 const joinMatchUseCaseFactory = (matchService: MatchService) => {
@@ -49,9 +54,10 @@ export const createDependencies = () => {
     const redisRepo = redisRepoFactory(redisClient);
     const matchesRepo = matchesRepoFactory(redisRepo);
     const playersQueueRepo = playersQueueRepoFactory(redisRepo);
+    const roomService = roomServiceFactory();
 
     // Services
-    const matchService = matchServiceFactory(generateSeed, matchesRepo, playersQueueRepo);
+    const matchService = matchServiceFactory(generateSeed, matchesRepo, playersQueueRepo, roomService);
 
     // Handlers
     const joinMatchUseCase = joinMatchUseCaseFactory(matchService);

@@ -51,13 +51,19 @@ export default class IoConnection {
                 const result = await this.joinMatchUseCase.execute(socket.id, data.id)
                 if (!result) return;
 
+                result.players.forEach((player) => {
+                    console.log(`joining player ${player.socketId} to room ${result.roomName}`)
+                    this.io.sockets.sockets.get(player.socketId)?.join(result.roomName)
+                });
+
+
                 const response = createOkResponse('match found', {
                     seed: result.seed,
                     id: result.id,
                     players: result.players
                 });
                 
-                this.io.to(socket.id).emit('matchFound', response)
+                this.io.to(result.roomName).emit('matchFound', response);
                 
             } catch (error) {
                 socket.id

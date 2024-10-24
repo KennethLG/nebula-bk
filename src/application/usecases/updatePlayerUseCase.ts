@@ -6,7 +6,8 @@ export class UpdatePlayerUseCase {
         private readonly matchService: MatchService
     ) {}
 
-    execute(matchId: string, player: Player) {
-        this.matchService.updatePlayer(matchId, player)
+    async execute(matchId: string, player: Player) {
+        const result = await this.matchService.updatePlayer(matchId, player)
+        return result;
     }
 }
