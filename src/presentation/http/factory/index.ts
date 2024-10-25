@@ -10,6 +10,7 @@ import IMatchesRepo from "../../../domain/interfaces/IMatchesRepo";
 import IPlayersQueueRepo from "../../../domain/interfaces/IPlayersQueueRepo";
 import { UpdatePlayerUseCase } from "../../../application/usecases/updatePlayerUseCase";
 import { RoomService } from "../../../application/services/roomService";
+import { PlayerDisconnectedUseCase } from "../../../application/usecases/playerDisconnectedUseCase";
 
 const roomServiceFactory = () => {
     return new RoomService();
@@ -47,6 +48,10 @@ const updatePlayerUseCaseFactory = (matchService: MatchService) => {
     return new UpdatePlayerUseCase(matchService);
 }
 
+const playerDisconnectedUseCaseFactory = (matchService: MatchService) => {
+    return new PlayerDisconnectedUseCase(matchService);
+}
+
 export const createDependencies = () => {
     // Core dependencies
     const generateSeed = generateSeedFactory();
@@ -62,9 +67,11 @@ export const createDependencies = () => {
     // Handlers
     const joinMatchUseCase = joinMatchUseCaseFactory(matchService);
     const updatePlayerUseCase = updatePlayerUseCaseFactory(matchService);
+    const playerDisconnectedUseCase = playerDisconnectedUseCaseFactory(matchService);
 
     return {
         joinMatchUseCase,
-        updatePlayerUseCase
+        updatePlayerUseCase,
+        playerDisconnectedUseCase
     };
 }

@@ -1,17 +1,13 @@
-import { Player } from '../../domain/entities/player';
+import { Player, PlayerQueue } from '../../domain/entities/player';
 import IMatchesRepo from '../../domain/interfaces/IMatchesRepo';
 import IPlayersQueueRepo from '../../domain/interfaces/IPlayersQueueRepo';
 import { RoomService } from './roomService';
 import { GenerateSeed } from './seedService';
 
-class PlayerQueueDto extends Player {
-  socketId: string;
-}
-
 export interface Match {
   id: string;
   seed: number;
-  players: PlayerQueueDto[];
+  players: PlayerQueue[];
   roomName: string;
 }
 
@@ -23,7 +19,7 @@ export class MatchService {
     private readonly roomService: RoomService
   ) {}
 
-  async joinQueue(player: PlayerQueueDto){
+  async joinQueue(player: PlayerQueue){
     console.log("adding player to queue", player)
     await this.playersQueueRepo.addPlayer(player);
     
@@ -59,5 +55,10 @@ export class MatchService {
       }
     }
     return null;
+  }
+
+  async disconnectPlayer(socketId: string): Promise<void> {
+    // remove player from queue that matches socketId
+    await this.playersQueueRepo.deletePlayerBySocketId(socketId);
   }
 }

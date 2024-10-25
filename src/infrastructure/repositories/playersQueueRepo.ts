@@ -1,4 +1,4 @@
-import { Player } from "../../domain/entities/player";
+import { Player, PlayerQueue } from "../../domain/entities/player";
 import IPlayersQueueRepo from "../../domain/interfaces/IPlayersQueueRepo";
 import { IRedisRepo } from "../../domain/interfaces/IRedisRepo";
 
@@ -12,8 +12,8 @@ export default class PlayersQueueRepo implements IPlayersQueueRepo {
         return result;
     }
     
-    async getPlayers(): Promise<Player[]> {
-        const result = await this.redisRepo.getRange('playersQueue', 0, -1);
+    async getPlayers(start: number, end: number): Promise<PlayerQueue[]> {
+        const result = await this.redisRepo.getRange('playersQueue', start, end);
         return result;
     }
 
@@ -22,13 +22,22 @@ export default class PlayersQueueRepo implements IPlayersQueueRepo {
         return result;
     }
 
-    async removePlayersRange() {
-        const result = await this.redisRepo.removeRange('playersQueue', 0, -1);
-        return result;
-    }
-
     async popPlayers(count: number) {
         const result = await this.redisRepo.pop('playersQueue', count);
         return result;
+    }
+
+    async deletePlayerBySocketId(socketId: string) {
+        console.log("🚀 ~ PlayersQueueRepo ~ deletePlayerBySocketId ~ socketId:", socketId)
+        const players = await this.getPlayers(0, -1);
+        console.log("🚀 ~ PlayersQueueRepo ~ deletePlayerBySocketId ~ players:", players)
+        const player = players.find(player => player.socketId === socketId);
+        console.log("🚀 ~ PlayersQueueRepo ~ deletePlayerBySocketId ~ player:", player)
+        if (!player) {
+            console.log('player not found');
+            return null;
+        }
+        await this.redisRepo.remove('playersQueue', 0, player);
+        return player;
     }
 }

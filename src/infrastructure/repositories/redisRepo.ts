@@ -71,12 +71,22 @@ export default class RedisRepo implements IRedisRepo {
         }
     }
 
-    async removeRange(key: string, start: number, end: number) {
+    async trim(key: string, start: number, end: number) {
         try {
             const result = await this.client.lTrim(key, start, end);
             return result;
         } catch (error) {
             console.error(`Error removing range of key ${key} from ${start} to ${end}:`, error);
+            throw error;
+        }
+    }
+
+    async remove(key: string, count: number, element: any) {
+        try {
+            const result = await this.client.lRem(key, count, JSON.stringify(element));
+            return result;
+        } catch (error) {
+            console.error(`Error removing element from key ${key}:`, error);
             throw error;
         }
     }

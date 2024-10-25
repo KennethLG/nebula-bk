@@ -6,5 +6,9 @@ export class Player {
       public xVel: Vector,
       public yVel: Vector
     ) {}
-  }
+}
+
+export class PlayerQueue extends Player {
+  socketId: string;
+}
   

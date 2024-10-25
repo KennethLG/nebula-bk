@@ -6,11 +6,13 @@ import { JoinMatchDto, UpdatePlayerDto } from "./dto/events";
 import { createOkResponse } from "../../infrastructure/responseHandler";
 import { JoinMatchUseCase } from "../../application/usecases/joinMatchUseCase";
 import { UpdatePlayerUseCase } from "../../application/usecases/updatePlayerUseCase";
+import { PlayerDisconnectedUseCase } from "../../application/usecases/playerDisconnectedUseCase";
 
 
 export default class IoConnection {
     private readonly joinMatchUseCase: JoinMatchUseCase
     private readonly updatePlayerUseCase: UpdatePlayerUseCase
+    private readonly playerDisconnectedUseCase: PlayerDisconnectedUseCase
     private readonly io: Server
     private readonly httpServer
     constructor(
@@ -23,10 +25,10 @@ export default class IoConnection {
             }
         })
 
-        const { joinMatchUseCase, updatePlayerUseCase } = createDependencies();
+        const { joinMatchUseCase, updatePlayerUseCase, playerDisconnectedUseCase } = createDependencies();
         this.joinMatchUseCase = joinMatchUseCase;
         this.updatePlayerUseCase = updatePlayerUseCase;
-
+        this.playerDisconnectedUseCase = playerDisconnectedUseCase;
 
     }
 
@@ -41,7 +43,8 @@ export default class IoConnection {
         console.log(`Player connected: ${socket.id}`);
         
         
-        socket.on('disconnect', () => {
+        socket.on('disconnect', async () => {
+            await this.playerDisconnectedUseCase.execute(socket.id);
             console.log(`Player disconnected: ${socket.id}`);
         })
         

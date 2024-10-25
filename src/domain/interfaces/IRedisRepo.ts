@@ -5,5 +5,6 @@ export interface IRedisRepo {
     pop: (key: string, count?: number) => Promise<any>;
     length: (key: string) => Promise<number>;
     getRange: (key: string, start: number, end: number) => Promise<any[]>;
-    removeRange: (key: string, start: number, end: number) => Promise<any>;
+    trim: (key: string, start: number, end: number) => Promise<any>;
+    remove: (key: string, count: number, value: any) => Promise<any>;
 }
