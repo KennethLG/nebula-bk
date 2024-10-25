@@ -69,7 +69,7 @@ export default class IoConnection {
                 this.io.to(result.roomName).emit('matchFound', response);
                 
             } catch (error) {
-                socket.id
+                console.error(error);
             }
         });
 
@@ -83,9 +83,7 @@ export default class IoConnection {
                 });
                 
             } catch (error) {
-                socket.emit('error', {
-                    message: error
-                })
+                console.error(error);
             }
         });
 

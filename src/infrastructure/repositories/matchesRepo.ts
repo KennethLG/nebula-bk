@@ -17,6 +17,7 @@ export default class MatchesRepo implements IMatchesRepo {
     }
 
     async updatePlayer(matchId: string, player: Player) {
+        console.log(`updating player ${player.id} in match ${matchId}`, typeof player.id);
         const players = await this.redisRepo.get<Player[]>(matchId);
         console.log("🚀 ~ MatchesRepo ~ updatePlayer ~ players:", players)
         if (!players) {

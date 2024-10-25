@@ -8,36 +8,36 @@ export default class PlayersQueueRepo implements IPlayersQueueRepo {
     ) {}
 
     async addPlayer(player: Player) {
-        const result = await this.redisRepo.push('playersQueue', player);
+        const players = await this.redisRepo.get<PlayerQueue[]>('playersQueue');
+        const newPlayers = players ? [...players, player] : [player];
+        const result = await this.redisRepo.set('playersQueue', newPlayers);
         return result;
     }
     
     async getPlayers(start: number, end: number): Promise<PlayerQueue[]> {
-        const result = await this.redisRepo.getRange('playersQueue', start, end);
-        return result;
+        const players = await this.redisRepo.get<PlayerQueue[]>('playersQueue');
+        if (!players) {
+            return [];
+        }
+        return players.slice(start, end);
     }
 
     async getPlayersCount() {
-        const result = await this.redisRepo.length('playersQueue');
-        return result;
+        const result = await this.redisRepo.get('playersQueue');
+        return result.length;
     }
 
     async popPlayers(count: number) {
-        const result = await this.redisRepo.pop('playersQueue', count);
-        return result;
+        const players = await this.redisRepo.get<PlayerQueue[]>('playersQueue');
+        const newPlayers = players.slice(0, count);
+        await this.redisRepo.set('playersQueue', players.slice(count));
+        return newPlayers;
     }
 
     async deletePlayerBySocketId(socketId: string) {
-        console.log("🚀 ~ PlayersQueueRepo ~ deletePlayerBySocketId ~ socketId:", socketId)
-        const players = await this.getPlayers(0, -1);
-        console.log("🚀 ~ PlayersQueueRepo ~ deletePlayerBySocketId ~ players:", players)
-        const player = players.find(player => player.socketId === socketId);
-        console.log("🚀 ~ PlayersQueueRepo ~ deletePlayerBySocketId ~ player:", player)
-        if (!player) {
-            console.log('player not found');
-            return null;
-        }
-        await this.redisRepo.remove('playersQueue', 0, player);
-        return player;
+        const players = await this.redisRepo.get<PlayerQueue[]>('playersQueue');
+        const newPlayers = players.filter(player => player.socketId !== socketId);
+        const result = await this.redisRepo.set('playersQueue', newPlayers);
+        return result;
     }
 }

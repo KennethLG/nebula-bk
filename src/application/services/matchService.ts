@@ -31,20 +31,25 @@ export class MatchService {
 
   async checkForMatch(): Promise<Match | null> {
     const playersCount = await this.playersQueueRepo.getPlayersCount();
+    console.log("players count", playersCount, "checking for match")
     if (playersCount >= 2) {
-      const playersData = await this.playersQueueRepo.popPlayers(2) as string[];
+      console.log("enough players for a match poping players...")
+      const playersData = await this.playersQueueRepo.popPlayers(2);
+      console.log("players poped", playersData)
       const players = playersData.map(player => {
-        const parsedPlayer = JSON.parse(player);
-        const newPlayer = new Player(parsedPlayer.id, parsedPlayer.position, parsedPlayer.velocity);
+        const newPlayer = new Player(player.id, player.xVel, player.yVel);
         return {
           ...newPlayer,
-          socketId: parsedPlayer.socketId
+          socketId: player.socketId
         }
       })
+      console.log("creating match with players", players)
 
       const seed = this.generateSeed.execute();
+      console.log("seed generated", seed)
       
       const { id } = await this.matchesRepo.createMatch(players);
+      console.log("room created", id)
       const roomName = this.roomService.createRoomName(id);
 
       return {

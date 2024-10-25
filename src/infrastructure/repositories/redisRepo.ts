@@ -29,10 +29,27 @@ export default class RedisRepo implements IRedisRepo {
 
     async push(key: string, value: any) {
         try {
-            const result = await this.client.lPush(key, JSON.stringify(value));
+            const result = await this.client.lPush(key, value);
             return result;
         } catch (error) {
             console.error(`Error pushing value to key ${key} with value ${JSON.stringify(value)}`, error);
+            throw error;
+        }
+    }
+
+    async pushMany(key: string, values: any[]) {
+        try {
+            const multi = this.client.multi();
+            values.forEach(element => {
+                multi.lPush(key, element);
+            });
+            const result = await multi.exec()
+            if (!result) {
+                return null;
+            }
+            return result;
+        } catch (error) {
+            console.error(`Error pushing values to key ${key} with values ${JSON.stringify(values)}`, error);
             throw error;
         }
     }

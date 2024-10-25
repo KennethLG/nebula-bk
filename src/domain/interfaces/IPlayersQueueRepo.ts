@@ -4,6 +4,6 @@ export default interface IPlayersQueueRepo {
     addPlayer: (player: any) => Promise<any>;
     getPlayers: (start: number, end: number) => Promise<PlayerQueue[]>;
     getPlayersCount: () => Promise<number>;
-    popPlayers: (count: number) => Promise<any>;
+    popPlayers: (count: number) => Promise<PlayerQueue[]>;
     deletePlayerBySocketId: (socketId: string) => Promise<any>;
 } 
