@@ -78,17 +78,19 @@ export default class IoConnection {
                 console.log('updatePlayer', data);
                 const result = await this.updatePlayerUseCase.execute(data.matchId, data.player);
                 console.log("🚀 ~ IoConnection ~ socket.on ~ result:", result)
-                this.io.to(socket.id).emit('playerUpdated', {
-                    data
+                const response = createOkResponse('player updated', {
+                    player: data.player
                 });
+                const rooms = this.io.sockets.adapter.rooms;
+                console.log("rooms", rooms)
+                const room = rooms.get(data.matchId)
+                console.log("🚀 ~ IoConnection ~ socket.on ~ room:", room)
+                this.io.to(data.matchId).emit('playerUpdated', response);
                 
             } catch (error) {
                 console.error(error);
             }
         });
 
-    }
-
-    private handleMessage = (data: any) => {
     }
 }

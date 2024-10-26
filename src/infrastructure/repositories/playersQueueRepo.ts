@@ -29,6 +29,10 @@ export default class PlayersQueueRepo implements IPlayersQueueRepo {
 
     async popPlayers(count: number) {
         const players = await this.redisRepo.get<PlayerQueue[]>('playersQueue');
+        if (!players) {
+            console.log('no players in queue');
+            return [];
+        }
         const newPlayers = players.slice(0, count);
         await this.redisRepo.set('playersQueue', players.slice(count));
         return newPlayers;
@@ -36,6 +40,10 @@ export default class PlayersQueueRepo implements IPlayersQueueRepo {
 
     async deletePlayerBySocketId(socketId: string) {
         const players = await this.redisRepo.get<PlayerQueue[]>('playersQueue');
+        if (!players) {
+            console.log('no players in queue');
+            return [];
+        }
         const newPlayers = players.filter(player => player.socketId !== socketId);
         const result = await this.redisRepo.set('playersQueue', newPlayers);
         return result;

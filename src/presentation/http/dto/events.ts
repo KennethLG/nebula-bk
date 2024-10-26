@@ -6,5 +6,5 @@ export class UpdatePlayerDto {
 }
 
 export class JoinMatchDto {
-    id: number;
+    id: string;
 }

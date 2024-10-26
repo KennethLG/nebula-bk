@@ -2,7 +2,7 @@ import Vector from "./vector";
 
 export class Player {
     constructor(
-      public id: number,
+      public id: string,
       public xVel: Vector,
       public yVel: Vector
     ) {}

@@ -7,7 +7,7 @@ export class JoinMatchUseCase {
         private readonly matchService: MatchService
     ) { }
 
-    async execute(socketId: string, id: number): Promise<Match | null> {
+    async execute(socketId: string, id: string): Promise<Match | null> {
         const newPlayer = new Player(id, new Vector(), new Vector());
         console.log('creating new player', id)
         const playerQueue = {

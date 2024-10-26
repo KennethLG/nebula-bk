@@ -1,6 +1,6 @@
 export interface IRedisRepo {
     set: (key: string, value: any) => Promise<any>;
-    get: <T = any>(key: string) => Promise<T>;
+    get: <T = any>(key: string) => Promise<T | null>;
     push: (key: string, value: any) => Promise<any>;
     pushMany: (key: string, values: any[]) => Promise<any>;
     pop: (key: string, count?: number) => Promise<any>;
