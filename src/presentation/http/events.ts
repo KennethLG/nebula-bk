@@ -85,7 +85,7 @@ export default class IoConnection {
                 console.log("rooms", rooms)
                 const room = rooms.get(data.matchId)
                 console.log("🚀 ~ IoConnection ~ socket.on ~ room:", room)
-                this.io.to(data.matchId).emit('playerUpdated', response);
+                this.io.to(data.matchId).except(socket.id).emit('playerUpdated', response);
                 
             } catch (error) {
                 console.error(error);

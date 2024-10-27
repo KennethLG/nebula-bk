@@ -37,7 +37,7 @@ export class MatchService {
       const playersData = await this.playersQueueRepo.popPlayers(2);
       console.log("players poped", playersData)
       const players = playersData.map(player => {
-        const newPlayer = new Player(player.id, player.xVel, player.yVel);
+        const newPlayer = new Player(player.id, player.xVel, player.yVel, player.position, player.key, player.keyState);
         return {
           ...newPlayer,
           socketId: player.socketId

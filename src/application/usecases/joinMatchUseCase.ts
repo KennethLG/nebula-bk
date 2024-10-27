@@ -8,7 +8,8 @@ export class JoinMatchUseCase {
     ) { }
 
     async execute(socketId: string, id: string): Promise<Match | null> {
-        const newPlayer = new Player(id, new Vector(), new Vector());
+        const newPlayer = new Player(id, new Vector(), new Vector(), new Vector(), '', false);
+        this.assignRandomPosition(newPlayer);
         console.log('creating new player', id)
         const playerQueue = {
             ...newPlayer,
@@ -19,6 +20,10 @@ export class JoinMatchUseCase {
         console.log("check for match result", result);
 
         return result;
+    }
+
+    private assignRandomPosition(player: Player) {
+        player.position = new Vector(Math.random() * 5, 0);
     }
 
 }
