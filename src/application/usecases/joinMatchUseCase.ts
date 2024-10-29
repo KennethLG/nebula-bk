@@ -1,4 +1,4 @@
-import { Player } from "../../domain/entities/player";
+import { Player, playerFactory } from "../../domain/entities/player";
 import Vector from "../../domain/entities/vector";
 import { Match, MatchService } from "../services/matchService";
 
@@ -8,7 +8,7 @@ export class JoinMatchUseCase {
     ) { }
 
     async execute(socketId: string, id: string): Promise<Match | null> {
-        const newPlayer = new Player(id, new Vector(), new Vector(), new Vector(), '', false);
+        const newPlayer = playerFactory(id);
         this.assignRandomPosition(newPlayer);
         console.log('creating new player', id)
         const playerQueue = {

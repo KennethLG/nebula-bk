@@ -1,4 +1,4 @@
-import { Player, PlayerQueue } from '../../domain/entities/player';
+import { Player, playerFactory, PlayerQueue, playerQueueFactory } from '../../domain/entities/player';
 import IMatchesRepo from '../../domain/interfaces/IMatchesRepo';
 import IPlayersQueueRepo from '../../domain/interfaces/IPlayersQueueRepo';
 import { RoomService } from './roomService';
@@ -36,12 +36,9 @@ export class MatchService {
       console.log("enough players for a match poping players...")
       const playersData = await this.playersQueueRepo.popPlayers(2);
       console.log("players poped", playersData)
-      const players = playersData.map(player => {
-        const newPlayer = new Player(player.id, player.xVel, player.yVel, player.position, player.key, player.keyState);
-        return {
-          ...newPlayer,
-          socketId: player.socketId
-        }
+      const players = playersData.map(({id, socketId, ...rest}) => {
+        const newPlayer = playerQueueFactory(id, socketId, rest);
+        return newPlayer
       })
       console.log("creating match with players", players)
 
