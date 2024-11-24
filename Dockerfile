@@ -4,6 +4,7 @@ COPY package*.json ./
 RUN npm install
 COPY . .
 RUN npm run build
+RUN mkdir -p dist/infrastructure/grpc/proto && cp -R src/infrastructure/grpc/proto/* dist/infrastructure/grpc/proto/
 
 FROM node:20-alpine AS production
 WORKDIR /usr/src/app

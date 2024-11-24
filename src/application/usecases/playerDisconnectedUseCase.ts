@@ -1,11 +1,11 @@
-import { MatchService } from "../services/matchService";
+import IPlayersQueueRepo from "../../domain/interfaces/IPlayersQueueRepo";
 
 export class PlayerDisconnectedUseCase {
     constructor(
-        private readonly matchService: MatchService
+        private readonly playersQueueRepo: IPlayersQueueRepo
     ) {}
 
     async execute(socketId: string) {
-        await this.matchService.disconnectPlayer(socketId);
+      await this.playersQueueRepo.removeBySocketId(socketId);
     }
 }

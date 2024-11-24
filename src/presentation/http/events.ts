@@ -1,16 +1,16 @@
 import { Server, Socket } from "socket.io";
 import { Express } from "express";
 import { createServer } from "http";
-import { createDependencies } from "./factory";
+import { createIoDependencies } from "./factory";
 import { JoinMatchDto, UpdatePlayerDto } from "./dto/events";
 import { createOkResponse } from "../../infrastructure/responseHandler";
-import { JoinMatchUseCase } from "../../application/usecases/joinMatchUseCase";
 import { UpdatePlayerUseCase } from "../../application/usecases/updatePlayerUseCase";
 import { PlayerDisconnectedUseCase } from "../../application/usecases/playerDisconnectedUseCase";
 import { auth } from "./middleware";
+import { CreateJoinMatchTaskUseCase } from "../../application/usecases/createJoinMatchTaskUseCase";
 
 export default class IoConnection {
-  private readonly joinMatchUseCase: JoinMatchUseCase;
+  private readonly createJoinMatchTaskUseCase: CreateJoinMatchTaskUseCase;
   private readonly updatePlayerUseCase: UpdatePlayerUseCase;
   private readonly playerDisconnectedUseCase: PlayerDisconnectedUseCase;
   private readonly io: Server;
@@ -24,15 +24,16 @@ export default class IoConnection {
     });
     this.io.use(auth);
 
-    const { joinMatchUseCase, updatePlayerUseCase, playerDisconnectedUseCase } =
-      createDependencies();
-    this.joinMatchUseCase = joinMatchUseCase;
+    const { createJoinMatchTaskUseCase, updatePlayerUseCase, playerDisconnectedUseCase } =
+      createIoDependencies(this.io);
+    this.createJoinMatchTaskUseCase = createJoinMatchTaskUseCase;
     this.updatePlayerUseCase = updatePlayerUseCase;
     this.playerDisconnectedUseCase = playerDisconnectedUseCase;
   }
 
   init() {
-    this.io.on("connection", this.handleConnection);
+    const matchNamespace = this.io.of("/match");
+    matchNamespace.on("connection", this.handleConnection);
     this.httpServer.listen(5000, () => {
       console.log("Server listening on port 5000");
     });
@@ -47,31 +48,7 @@ export default class IoConnection {
 
     socket.on("joinMatch", async (data: JoinMatchDto) => {
       try {
-        console.log("player received joinMatch", data);
-        const result = await this.joinMatchUseCase.execute(socket.id, data.id);
-        if (result.match == null) {
-          const response = createOkResponse("waiting more players", {
-            playersCount: result.playersCount,
-          });
-          this.io.to(socket.id).emit("addedPlayer", response);
-          return;
-        }
-        const match = result.match;
-
-        match.players.forEach((player) => {
-          console.log(
-            `joining player ${player.socketId} to room ${match.roomName}`,
-          );
-          this.io.sockets.sockets.get(player.socketId)?.join(match.roomName);
-        });
-
-        const response = createOkResponse("match found", {
-          seed: match.seed,
-          id: match.id,
-          players: match.players,
-        });
-
-        this.io.to(match.roomName).emit("matchFound", response);
+        await this.createJoinMatchTaskUseCase.execute(socket.id, data.id);
       } catch (error) {
         console.error(error);
       }
@@ -88,11 +65,9 @@ export default class IoConnection {
         const response = createOkResponse("player updated", {
           player: data.player,
         });
-        const rooms = this.io.sockets.adapter.rooms;
-        console.log("rooms", rooms);
-        const room = rooms.get(data.matchId);
-        console.log("🚀 ~ IoConnection ~ socket.on ~ room:", room);
+        console.log(`response ${JSON.stringify(response)}`);
         this.io
+          .of("/match")
           .to(data.matchId)
           .except(socket.id)
           .emit("playerUpdated", response);

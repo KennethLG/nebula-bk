@@ -5,11 +5,24 @@ package user;
 service UserService {
   rpc GetUser(GetUserRequest) returns (GetUserResponse) {}
   rpc CreateUser(CreateUserRequest) returns (CreateUserResponse) {}
+  rpc GetUserByEmail(GetUserByEmailRequest) returns (GetUserByEmailResponse) {}
+}
+
+message GetUserByEmailRequest {
+  string email = 1;
+}
+
+message GetUserByEmailResponse {
+  string id = 1;
+  string username = 2;
+  string email = 3;
+  string password = 4;
 }
 
 message CreateUserRequest {
-  string name = 1;
+  string username = 1;
   string email = 2;
+  string password = 3;
 }
 
 message CreateUserResponse {
@@ -20,8 +33,9 @@ message GetUserRequest {
   string id = 1;
 }
 
+
 message GetUserResponse {
   string id = 1;
-  string name = 2;
+  string username = 2;
   string email = 3;
 }

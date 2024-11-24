@@ -1,51 +1,34 @@
-import { Player, PlayerQueue } from "../../domain/entities/player";
+import { Player } from "../../domain/entities/player";
 import IPlayersQueueRepo from "../../domain/interfaces/IPlayersQueueRepo";
-import { IRedisRepo } from "../../domain/interfaces/IRedisRepo";
+import { IRedisQueueRepo } from "../../domain/interfaces/IRedisQueueRepo";
 
 export default class PlayersQueueRepo implements IPlayersQueueRepo {
-    constructor(
-        private readonly redisRepo: IRedisRepo
-    ) {}
+  private KEY = "playersQueue";
+  constructor(private readonly redisRepo: IRedisQueueRepo) {}
 
-    async addPlayer(player: Player) {
-        const players = await this.redisRepo.get<PlayerQueue[]>('playersQueue');
-        const newPlayers = players ? [...players, player] : [player];
-        const result = await this.redisRepo.set('playersQueue', newPlayers);
-        return result;
-    }
-    
-    async getPlayers(start: number, end: number): Promise<PlayerQueue[]> {
-        const players = await this.redisRepo.get<PlayerQueue[]>('playersQueue');
-        if (!players) {
-            return [];
-        }
-        return players.slice(start, end);
-    }
+  async add(player: Player) {
+    await this.redisRepo.push(this.KEY, player, false);
+  }
 
-    async getPlayersCount() {
-        const result = await this.redisRepo.get('playersQueue');
-        return result.length;
-    }
+  async range(start: number, end: number) {
+    const players = await this.redisRepo.range(this.KEY, start, end);
+    return players;
+  }
 
-    async popPlayers(count: number) {
-        const players = await this.redisRepo.get<PlayerQueue[]>('playersQueue');
-        if (!players) {
-            console.log('no players in queue');
-            return [];
-        }
-        const newPlayers = players.slice(0, count);
-        await this.redisRepo.set('playersQueue', players.slice(count));
-        return newPlayers;
-    }
+  async length() {
+    const count = await this.redisRepo.length(this.KEY);
+    return count;
+  }
 
-    async deletePlayerBySocketId(socketId: string) {
-        const players = await this.redisRepo.get<PlayerQueue[]>('playersQueue');
-        if (!players) {
-            console.log('no players in queue');
-            return [];
-        }
-        const newPlayers = players.filter(player => player.socketId !== socketId);
-        const result = await this.redisRepo.set('playersQueue', newPlayers);
-        return result;
+  async trim(start: number, end: number) {
+    await this.redisRepo.trim(this.KEY, start, end);
+  }
+
+  async removeBySocketId(socketId: string) {
+    const players = await this.range(0, -1);
+    const player = players.find((player) => player.socketId === socketId);
+    if (player) {
+      await this.trim(0, -1);
     }
+  }
 }

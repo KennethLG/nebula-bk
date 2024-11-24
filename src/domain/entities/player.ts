@@ -36,6 +36,10 @@ export class Player {
     this.keyState = keyState;
     this.dead = dead;
   }
+
+  assignRandomPosition() {
+    this.position = new Vector(Math.random() * 5, 0);
+  }
 }
 export const playerFactory = (id: string, options?: PlayerOptions) => {
   return new Player(id, options);

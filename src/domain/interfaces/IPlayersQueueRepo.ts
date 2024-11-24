@@ -1,9 +1,9 @@
-import { Player, PlayerQueue } from "../entities/player";
+import { PlayerQueue } from "../entities/player";
 
 export default interface IPlayersQueueRepo {
-    addPlayer: (player: any) => Promise<any>;
-    getPlayers: (start: number, end: number) => Promise<PlayerQueue[]>;
-    getPlayersCount: () => Promise<number>;
-    popPlayers: (count: number) => Promise<PlayerQueue[]>;
-    deletePlayerBySocketId: (socketId: string) => Promise<any>;
+    add: (player: any) => Promise<void>;
+    range: (start: number, end: number) => Promise<PlayerQueue[]>;
+    length: () => Promise<number>;
+    trim: (start: number, end: number) => Promise<void>;
+    removeBySocketId: (socketId: string) => Promise<void>;
 } 

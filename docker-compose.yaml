@@ -20,6 +20,8 @@ services:
     environment:
       REDIS_HOST: redis
       REDIS_PORT: 6379
+      NEBULA_DB_MS_URL: "192.168.0.105:3001"
+      JWT_TOKEN: example
     networks:
       - app_network
 volumes:
