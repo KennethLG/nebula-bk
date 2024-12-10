@@ -6,6 +6,7 @@ export class PlayerDisconnectedUseCase {
     ) {}
 
     async execute(socketId: string) {
+      console.log(`disconnecting player ${socketId}`);
       await this.playersQueueRepo.removeBySocketId(socketId);
     }
 }

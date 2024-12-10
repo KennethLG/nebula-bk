@@ -19,10 +19,16 @@ import { PlayersQueueWorker } from "../../../infrastructure/queueWorker";
 import { CheckForMatchUseCase } from "../../../application/usecases/checkForMatchUseCase";
 import { IRedisQueueRepo } from "../../../domain/interfaces/IRedisQueueRepo";
 import { RedisQueueRepo } from "../../../infrastructure/repositories/redisQueueRepo";
-import { NotifyMatchFound, PlayerNotificationService } from "../../../infrastructure/io/playerNotificationService";
+import {
+  NotifyMatchFound,
+  PlayerNotificationService,
+} from "../../../infrastructure/io/playerNotificationService";
 import { Server } from "socket.io";
 import { CreateJoinMatchTaskUseCase } from "../../../application/usecases/createJoinMatchTaskUseCase";
-import { JoinPlayersToRoom, JoinPlayersToRoomService } from "../../../infrastructure/io/joinPlayersToRoomService";
+import {
+  JoinPlayersToRoom,
+  JoinPlayersToRoomService,
+} from "../../../infrastructure/io/joinPlayersToRoomService";
 
 const roomServiceFactory = () => {
   return new RoomService();

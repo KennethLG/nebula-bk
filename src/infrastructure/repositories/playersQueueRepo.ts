@@ -25,10 +25,35 @@ export default class PlayersQueueRepo implements IPlayersQueueRepo {
   }
 
   async removeBySocketId(socketId: string) {
-    const players = await this.range(0, -1);
-    const player = players.find((player) => player.socketId === socketId);
-    if (player) {
-      await this.trim(0, -1);
+    console.log(`Removing player by socketId ${socketId}`);
+
+    const script = `
+    local key = KEYS[1]
+    local socketId = ARGV[1]
+
+    local players = redis.call("LRANGE", key, 0, -1)
+    for i, player in ipairs(players) do
+        local parsedPlayer = cjson.decode(player)
+        if parsedPlayer.socketId == socketId then
+            redis.call("LSET", key, i - 1, "__TO_DELETE__")
+            redis.call("LREM", key, 0, "__TO_DELETE__")
+            return 1
+        end
+    end
+
+    return 0
+  `;
+
+    const indexRemoved = await this.redisRepo.evalScript<number>(
+      script,
+      [this.KEY],
+      [socketId],
+    );
+
+    if (indexRemoved >= 0) {
+      console.log(`Player with socketId ${socketId} removed.`);
+    } else {
+      console.log(`Player with socketId ${socketId} not found.`);
     }
   }
 }

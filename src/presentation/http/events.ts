@@ -6,7 +6,6 @@ import { JoinMatchDto, UpdatePlayerDto } from "./dto/events";
 import { createOkResponse } from "../../infrastructure/responseHandler";
 import { UpdatePlayerUseCase } from "../../application/usecases/updatePlayerUseCase";
 import { PlayerDisconnectedUseCase } from "../../application/usecases/playerDisconnectedUseCase";
-import { auth } from "./middleware";
 import { CreateJoinMatchTaskUseCase } from "../../application/usecases/createJoinMatchTaskUseCase";
 
 export default class IoConnection {
@@ -22,10 +21,13 @@ export default class IoConnection {
         origin: "*",
       },
     });
-    this.io.use(auth);
+    //this.io.use(auth);
 
-    const { createJoinMatchTaskUseCase, updatePlayerUseCase, playerDisconnectedUseCase } =
-      createIoDependencies(this.io);
+    const {
+      createJoinMatchTaskUseCase,
+      updatePlayerUseCase,
+      playerDisconnectedUseCase,
+    } = createIoDependencies(this.io);
     this.createJoinMatchTaskUseCase = createJoinMatchTaskUseCase;
     this.updatePlayerUseCase = updatePlayerUseCase;
     this.playerDisconnectedUseCase = playerDisconnectedUseCase;
@@ -42,6 +44,7 @@ export default class IoConnection {
   private handleConnection = (socket: Socket) => {
     console.log(`Player connected: ${socket.id}`);
     socket.on("disconnect", async () => {
+      console.log("received disconnect event", socket.id);
       await this.playerDisconnectedUseCase.execute(socket.id);
       console.log(`Player disconnected: ${socket.id}`);
     });

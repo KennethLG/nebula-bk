@@ -6,12 +6,16 @@ export class PlayersQueueWorker {
   constructor(
     private readonly checkForMatchUseCase: CheckForMatchUseCase,
     private readonly notifyPlayers: NotifyMatchFound,
-    private readonly joinPlayersToRoom: JoinPlayersToRoom 
+    private readonly joinPlayersToRoom: JoinPlayersToRoom,
   ) {
     this.init();
   }
 
   private async init() {
+    this.checkForMatch();
+  }
+
+  private async checkForMatch() {
     while (true) {
       try {
         const match = await this.checkForMatchUseCase.execute();
@@ -22,7 +26,6 @@ export class PlayersQueueWorker {
       } catch (error) {
         console.error(`Error in PlayersQueueWorker: ${error}`);
       }
-
       await new Promise((resolve) => setTimeout(resolve, 1000));
     }
   }
