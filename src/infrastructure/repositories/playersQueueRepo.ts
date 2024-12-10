@@ -1,13 +1,49 @@
+import fs from "fs";
+import path from "path";
 import { Player } from "../../domain/entities/player";
 import IPlayersQueueRepo from "../../domain/interfaces/IPlayersQueueRepo";
 import { IRedisQueueRepo } from "../../domain/interfaces/IRedisQueueRepo";
 
 export default class PlayersQueueRepo implements IPlayersQueueRepo {
   private KEY = "playersQueue";
-  constructor(private readonly redisRepo: IRedisQueueRepo) {}
+  // addPlayerScript;
+  constructor(private readonly redisRepo: IRedisQueueRepo) {
+    // this.addPlayerScript = fs.readFileSync(
+    //   path.resolve(__dirname, "../luaScripts/addPlayer.lua"),
+    //   "utf8",
+    // );
+  }
 
   async add(player: Player) {
-    await this.redisRepo.push(this.KEY, player, false);
+    const result = await this.redisRepo.evalScript<number>(
+      `
+local key = KEYS[1]
+local playerId = ARGV[1]
+local playerData = ARGV[2]
+
+-- Check if player with the same ID already exists
+local players = redis.call("LRANGE", key, 0, -1)
+for _, player in ipairs(players) do
+	local parsedPlayer = cjson.decode(player)
+	if parsedPlayer.id == playerId then
+		return 0 -- Player already exists
+	end
+end
+
+-- Add the new player to the list
+redis.call("RPUSH", key, playerData)
+return 1 -- Player added successfully
+    `,
+      [this.KEY],
+      [player.id, JSON.stringify(player)],
+    );
+
+    if (result === 1) {
+      console.log(`Player added: ${player.id}`);
+      return;
+    }
+    console.log(`Player already exists: ${player.id}`);
+    // await this.redisRepo.push(this.KEY, player, false);
   }
 
   async range(start: number, end: number) {
